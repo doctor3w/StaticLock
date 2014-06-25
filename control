@@ -1,0 +1,9 @@
+Package: com.drewsdunne.staticlock
+Name: StaticLock
+Depends: mobilesubstrate
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Tweak to prevent lockscreen from moving at all.
+Maintainer: drewsdunne
+Author: drewsdunne
+Section: Tweaks
