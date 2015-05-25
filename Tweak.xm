@@ -5,36 +5,17 @@
 //
 //
 
-@interface SBLockScreenBounceAnimator
-- (void)_handleTapGesture:(id)arg1;
--(void)addTapExcludedView:(id)arg1;
--(id)initWithView:(id)arg1;
+#include "defines.h"
+
+@implementation UIDevice (OSVersion)
+- (BOOL)iOSVersionIsAtLeast:(NSString*)version {
+    NSComparisonResult result = [[self systemVersion] compare:version options:NSNumericSearch];
+    return (result == NSOrderedDescending || result == NSOrderedSame);
+}
 @end
 
-@interface SBLockScreenView
-@property(readonly, nonatomic) UIScrollView *scrollView;
-- (void)_layoutScrollView;
-@end
-
-%hook SBLockScreenBounceAnimator
-
-- (void)_handleTapGesture:(id)arg1 {
-	//Release argument
-	arg1 = NULL;
-	//Don't handle the gesture
-}
-
-- (id)initWithView:(id)arg1 {
-	id thing = %orig;
-	//add the lock screen to view that are excluded from taps
-	[self addTapExcludedView:arg1];
-	return thing;
-}
-
-%end
-
+%group iOS7
 %hook SBLockScreenView
-
 - (void)_layoutScrollView {
 	%orig;
 	//Turn off scrolling on lockscreen
@@ -42,5 +23,41 @@
 	//Turn off scroll view bouncing
 	[self.scrollView setBounces:NO];
 }
-
 %end
+%hook SBLockScreenBounceAnimator
+- (void)_handleTapGesture:(id)arg1 {
+	//Release argument
+	arg1 = NULL;
+	//Don't handle the gesture
+}
+%end
+%end
+
+%group iOS71
+%hook SBLockScreenView
+- (BOOL)_disallowScrollingInTouchedView:(id)fp8 {
+	return YES;
+}
+- (float)hintDisplacement {
+	return 0;
+}
+%end
+%hook SBLockScreenBounceAnimator
+- (void)_handleTapGesture:(id)arg1 {
+	//Release argument
+	arg1 = NULL;
+	//Don't handle the gesture
+}
+%end
+%end
+
+%ctor {
+	if (IS_IOS_71_OR_LATER())
+	{
+		%init(iOS71);
+	} else if (IS_IOS_70()) {
+		%init(iOS7);
+	} else {
+
+	}
+}
